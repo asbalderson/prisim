@@ -54,9 +54,9 @@ impl ColorBytes {
 
     pub fn from_cmyk(c: u8, m: u8, y: u8, k: u8) -> ColorBytes {
         let one_minus_k: f32 = 1f32 - (k as f32 / 100f32);
-        let r = (u8::MAX as f32 * (1f32 - (c as f32 / 100f32)) * one_minus_k) as u8;
-        let g = (u8::MAX as f32 * (1f32 - (m as f32 / 100f32)) * one_minus_k) as u8;
-        let b = (u8::MAX as f32 * (1f32 - (y as f32 / 100f32)) * one_minus_k) as u8;
+        let r = (u8::MAX as f32 * (1f32 - (c as f32 / 100f32)) * one_minus_k).round() as u8;
+        let g = (u8::MAX as f32 * (1f32 - (m as f32 / 100f32)) * one_minus_k).round() as u8;
+        let b = (u8::MAX as f32 * (1f32 - (y as f32 / 100f32)) * one_minus_k).round() as u8;
         ColorBytes::new(r, g, b)
     }
 
@@ -95,7 +95,7 @@ impl ColorBytes {
     }
 
     fn l(self) -> f32 {
-        ((self.max() + self.min()) as f32 / u8::MAX as f32) / 2f32
+        ((self.max() as u16 + self.min() as u16) as f32 / u8::MAX as f32) / 2f32
     }
 
     pub fn as_rgb(self) -> (u8, u8, u8) {
