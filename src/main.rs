@@ -1,13 +1,8 @@
-// https://www.rapidtables.com/convert/color/how-hex-to-rgb.html
-// RGB: 34, 139, 34 (3 8bit integers)
-// Hex: 228B22      (3 8bit integers as hex)
-// HSL: 120, 67%, 33.9% (look it up)
-// HSV: 120, 75.5%, 54.5% (also look it up)
-// CMYK: 76, 0, 76, 45 (again look it up
-// print to terminal \x1b[38;2;r;g;bm<text> and then \033[0m at the end to return to default...
 extern crate clap;
+extern crate colored;
 
 use clap::{value_t_or_exit, App, Arg};
+use colored::*;
 use itertools::Itertools;
 use std::cmp;
 use std::fmt;
@@ -22,6 +17,10 @@ pub struct ColorBytes {
 impl ColorBytes {
     fn new(r: u8, g: u8, b: u8) -> ColorBytes {
         ColorBytes { r: r, g: g, b: b }
+    }
+
+    pub fn complement(self) -> ColorBytes {
+        ColorBytes { r: u8::MAX - self.r, g: u8::MAX - self.g, b: u8::MAX - self.b }
     }
 
     pub fn from_tuple(rgb_tuple: (u8, u8, u8)) -> ColorBytes {
@@ -183,10 +182,19 @@ fn main() {
                 .long("cmyk")
                 .value_name("cmyk")
                 .takes_value(true),
-        )
+        ).arg(
+            Arg::with_name("color")
+                .long("color")
+                .value_name("color")
+                .takes_value(false)
+        ).arg(
+            Arg::with_name("complement")
+                .long("complement")
+                .value_name("complement")
+                .takes_value(false))
         .get_matches();
 
-    let color;
+    let mut color;
 
     if args.is_present("hex") {
         let hex_str = value_t_or_exit!(args, "hex", String);
@@ -215,11 +223,27 @@ fn main() {
         panic!("Need argument `hex`, `rgb`, or `cmyk`");
     }
 
-    println!("{}", Color::Hex(color));
-    println!("{}", Color::RGB(color));
-    println!("{}", Color::HSL(color));
-    println!("{}", Color::HSV(color));
-    println!("{}", Color::CMYK(color));
-    //    println!("\x1b[38;2;34;139;34m{}\x1b[0m", Color::RGB(other_green));
-    //    println!("{}", Color::Hex(other_green));
+    if args.is_present("complement") {
+        color = color.complement();
+    }
+
+    let mut hex: ColoredString = format!("{}", color.as_hex()).normal();
+    let mut rgb: ColoredString = format!("{:?}", color.as_rgb()).normal();
+    let mut hsl: ColoredString = format!("{:?}", color.as_hsl()).normal();
+    let mut hsv: ColoredString = format!("{:?}", color.as_hsv()).normal();
+    let mut cmyk: ColoredString = format!("{:?}", color.as_cmyk()).normal();
+
+    if args.is_present("color") {
+        hex = hex.truecolor(color.r, color.g, color.b);
+        rgb = rgb.truecolor(color.r, color.g, color.b);
+        hsl = hsl.truecolor(color.r, color.g, color.b);
+        hsv = hsv.truecolor(color.r, color.g, color.b);
+        cmyk = cmyk.truecolor(color.r, color.g, color.b);
+    }
+
+    println!("Hex: {}", hex);
+    println!("RGB: {}", rgb);
+    println!("HSL: {}", hsl);
+    println!("HSV: {}", hsv);
+    println!("CYMK: {}", cmyk);
 }

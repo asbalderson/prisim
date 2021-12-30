@@ -7,5 +7,6 @@ edition = "2018"
 
 [dependencies]
 clap = "*"
+colored = "*"
 hex = "*"
 itertools = "*"
