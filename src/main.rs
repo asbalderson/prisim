@@ -20,7 +20,11 @@ impl ColorBytes {
     }
 
     pub fn complement(self) -> ColorBytes {
-        ColorBytes { r: u8::MAX - self.r, g: u8::MAX - self.g, b: u8::MAX - self.b }
+        ColorBytes {
+            r: u8::MAX - self.r,
+            g: u8::MAX - self.g,
+            b: u8::MAX - self.b,
+        }
     }
 
     pub fn from_tuple(rgb_tuple: (u8, u8, u8)) -> ColorBytes {
@@ -182,16 +186,19 @@ fn main() {
                 .long("cmyk")
                 .value_name("cmyk")
                 .takes_value(true),
-        ).arg(
+        )
+        .arg(
             Arg::with_name("color")
                 .long("color")
                 .value_name("color")
-                .takes_value(false)
-        ).arg(
+                .takes_value(false),
+        )
+        .arg(
             Arg::with_name("complement")
                 .long("complement")
                 .value_name("complement")
-                .takes_value(false))
+                .takes_value(false),
+        )
         .get_matches();
 
     let mut color;
